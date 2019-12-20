@@ -1,0 +1,3 @@
+[submodule "pastebin-client"]
+	path = pastebin-client
+	url = https://github.com/dannyhp1/pastebin-client
