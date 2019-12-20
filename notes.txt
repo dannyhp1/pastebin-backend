@@ -1,0 +1,12 @@
+Database scheme:
+- Need a table to store the posts:
+  - Unique id (generated for each text).
+  - Text within the post.
+  - Language for the post (plaintext, cpp, java, python).
+  - Date the post was created.
+
+[table] posts
+  - id VARCHAR(128) PRIMARY KEY
+  - text LONGTEXT NOT NULL
+  - type VARCHAR(128) NOT NULL
+  - date DATE NOT NULL
