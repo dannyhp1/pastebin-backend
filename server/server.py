@@ -27,14 +27,15 @@ def save_post():
 
     text = data['text']
     type = data['type']
+    author = data['author']
     id = uuid.uuid4().hex
     current_time = time.strftime('%Y-%m-%d %H:%M:%S')
 
     connection = mysql.connector.connect(**mysql_config)
     cursor = connection.cursor(buffered=True)
 
-    query = ('INSERT INTO posts VALUES(%s, %s, %s, %s)')
-    cursor.execute(query, (id, text, type, current_time))
+    query = ('INSERT INTO posts VALUES(%s, %s, %s, %s, %s)')
+    cursor.execute(query, (id, author, text, type, current_time))
 
     connection.commit()
     cursor.close()
@@ -55,7 +56,7 @@ def get_post(id):
   connection = mysql.connector.connect(**mysql_config)
   cursor = connection.cursor(buffered=True)
 
-  query = ('SELECT text, type, date FROM posts WHERE id = %s')
+  query = ('SELECT author, text, type, date FROM posts WHERE id = %s')
   cursor.execute(query, (id,))
   result = cursor.fetchall()
   
@@ -68,12 +69,14 @@ def get_post(id):
       'message': 'No post can be found associated with the given id.'
     })
   
-  text, type, date = result[0]
+  author, text, type, date,  = result[0]
+  print(result[0])
   cursor.close()
   connection.close()
 
   return jsonify({
     'status': 'success',
+    'author': author,
     'text': text,
     'type': type,
     'date': date.ctime()

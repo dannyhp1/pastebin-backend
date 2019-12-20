@@ -4,6 +4,7 @@ USE pastebin;
 
 CREATE TABLE posts (
   id VARCHAR(128),
+  author VARCHAR(128),
   text LONGTEXT NOT NULL,
   type VARCHAR(128) NOT NULL,
   date DATETIME NOT NULL,
