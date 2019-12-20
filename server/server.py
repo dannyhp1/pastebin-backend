@@ -70,13 +70,12 @@ def get_post(id):
     })
   
   author, text, type, date,  = result[0]
-  print(result[0])
   cursor.close()
   connection.close()
 
   return jsonify({
     'status': 'success',
-    'author': author,
+    'author': str(author),
     'text': text,
     'type': type,
     'date': date.ctime()
