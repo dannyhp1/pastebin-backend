@@ -1,17 +1,25 @@
 import json
 import time
 import uuid
+from os import path
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-import mysql.connector
+import sqlite3
 
-mysql_config = {
-  'user': 'dannyhp',
-  'password': 'password',
-  'host': '127.0.0.1',
-  'database': 'pastebin',
-  'auth_plugin': 'mysql_native_password'
-}
+DATABASE_FILE = './server/database/pastebin.db'
+PASTEBIN_CREATE_TABLE_QUERY = """
+CREATE TABLE posts (
+  id VARCHAR(128),
+  author VARCHAR(128),
+  text LONGTEXT NOT NULL,
+  type VARCHAR(128) NOT NULL,
+  date DATETIME NOT NULL,
+  PRIMARY KEY (id)
+);"""
+PASTEBIN_INSERT_QUERY = """
+INSERT INTO posts VALUES(?, ?, ?, ?, ?)"""
+PASTEBIN_GET_QUERY = """
+SELECT author, text, type, date FROM posts WHERE id = ?"""
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -31,33 +39,25 @@ def save_post():
     id = uuid.uuid4().hex
     current_time = time.strftime('%Y-%m-%d %H:%M:%S')
 
-    connection = mysql.connector.connect(**mysql_config)
-    cursor = connection.cursor(buffered=True)
-
-    query = ('INSERT INTO posts VALUES(%s, %s, %s, %s, %s)')
-    cursor.execute(query, (id, author, text, type, current_time))
-
-    connection.commit()
-    cursor.close()
-    connection.close()
+    create_db(DATABASE_FILE, PASTEBIN_CREATE_TABLE_QUERY)
+    insert_paste(DATABASE_FILE, PASTEBIN_INSERT_QUERY, (id, author, text, type, current_time))
 
     print('Created a new post: ({}, {}, {}, {})'.format(id, text, type, current_time))
     return jsonify({
       'status': 'success',
       'id': id
     })
-  except:
+  except RuntimeError as e:
     return jsonify({
       'status': 'error'
     })
 
 @app.route('/pastebin_load/<id>', methods = ['GET'])
 def get_post(id):
-  connection = mysql.connector.connect(**mysql_config)
-  cursor = connection.cursor(buffered=True)
+  connection = sqlite3.connect(DATABASE_FILE)
+  cursor = connection.cursor()
 
-  query = ('SELECT author, text, type, date FROM posts WHERE id = %s')
-  cursor.execute(query, (id,))
+  cursor.execute(PASTEBIN_GET_QUERY, (id,))
   result = cursor.fetchall()
   
   if len(result) != 1:
@@ -78,8 +78,26 @@ def get_post(id):
     'author': str(author),
     'text': text,
     'type': type,
-    'date': date.ctime()
+    'date': date
   })
+
+def insert_paste(db_path, query, paste):
+  connection = sqlite3.connect(db_path)
+  cursor = connection.cursor()
+  cursor.execute(query, paste)
+  connection.commit()
+  cursor.close()
+  connection.close()
+
+def create_db(db_path, query):
+  # Check if the database exists; if it doesn't, create it.
+  if not path.exists(db_path):
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+    cursor.execute(query)
+    connection.commit()
+    cursor.close()
+    connection.close()
 
 if __name__ == '__main__':
   app.run(debug=True)
