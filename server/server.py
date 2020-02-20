@@ -47,7 +47,7 @@ def save_post():
       'status': 'success',
       'id': id
     })
-  except RuntimeError as e:
+  except:
     return jsonify({
       'status': 'error'
     })
