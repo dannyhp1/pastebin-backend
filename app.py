@@ -34,6 +34,8 @@ def ping():
 
 @app.route('/v1/pastebin/save', methods = ['POST'])
 def save_paste():
+    initialize_tables()
+
     try:
         data = request.get_json()
 
