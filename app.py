@@ -93,11 +93,12 @@ def get_paste(id):
     connection.close()
 
     return jsonify({
+        'id': str(id),
         'author': str(author),
-        'text': text,
-        'language': language,
-        'type': type,
-        'date': date
+        'text': str(text),
+        'language': str(language),
+        'type': str(type),
+        'date': str(date)
     })
 
 @app.route('/v1/pastebin/all', methods = ['GET'])
@@ -117,10 +118,10 @@ def get_all_pastes():
         all_pastes.append({
             'id': str(id),
             'author': str(author),
-            'text': text,
-            'language': language,
-            'type': type,
-            'date': date
+            'text': str(text),
+            'language': str(language),
+            'type': str(type),
+            'date': str(date)
         })
     
     return jsonify({
