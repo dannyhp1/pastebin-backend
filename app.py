@@ -88,7 +88,7 @@ def get_paste(id):
         'message': 'No post can be found associated with the given id.'
         })
     
-    author, text, language, type, date,  = result[0]
+    author, text, language, type, date = result[0]
     cursor.close()
     connection.close()
 
@@ -98,6 +98,33 @@ def get_paste(id):
         'language': language,
         'type': type,
         'date': date
+    })
+
+@app.route('/v1/pastebin/all', methods = ['GET'])
+def get_all_pastes():
+    initialize_tables()
+
+    connection = sqlite3.connect(DATABASE_FILE_NAME)
+    cursor = connection.cursor()
+
+    query = ('SELECT id, author, text, language, type, date FROM pastebin')
+    cursor.execute(query)
+    results = cursor.fetchall()
+
+    all_pastes = []
+    for paste in results:
+        id, author, text, language, type, date = paste
+        all_pastes.append({
+            'id': str(id),
+            'author': str(author),
+            'text': text,
+            'language': language,
+            'type': type,
+            'date': date
+        })
+    
+    return jsonify({
+        'results': all_pastes,
     })
 
 def create_table():
