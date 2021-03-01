@@ -124,7 +124,8 @@ def get_all_pastes():
             'date': str(date)
         })
 
-    all_pastes.sort(key = lambda paste : paste['date'])
+    # Sort by descending order on date.
+    all_pastes.sort(key = lambda paste : paste['date'], reverse = True)
     
     return jsonify({
         'results': all_pastes,
