@@ -123,6 +123,8 @@ def get_all_pastes():
             'type': str(type),
             'date': str(date)
         })
+
+    all_pastes.sort(key = lambda paste : paste['date'])
     
     return jsonify({
         'results': all_pastes,
